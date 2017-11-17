@@ -4,9 +4,8 @@
 \usepackage{color}
 
 \lstdefinelanguage
-   [x64]{Assembler}     % add a "x64" dialect of Assembler
-   [x86masm]{Assembler} % based on the "x86masm" dialect
-   % with these extra keywords:
+   [x64]{Assembler}
+   [x86masm]{Assembler}
    {morekeywords={CDQE,CQO,CMPSQ,CMPXCHG16B,JRCXZ,LODSQ,MOVSXD, %
                   POPFQ,PUSHFQ,SCASQ,STOSQ,IRETQ,RDTSCP,SWAPGS, %
                   rax,rdx,rcx,rbx,rsi,rdi,rsp,rbp, %
@@ -144,5 +143,147 @@ leave
 \end{lstlisting}
 \par
 After the call to strcmp, the program checks the return value in eax and sets 
-al if the zero flag is set.
+al if the zero flag is set.  The stage is passed if the user supplies their 
+own username.
+
+\newpage
+\section{Stage 3 Analysis}
+\begin{flushleft}
+\vspace{.5pc}
+\end{flushleft}
+
+\begin{flushleft}
+\textbf{Analysis:}
+\vspace{.5pc}
+\end{flushleft}
+
+\par
+Stage 3 takes user input and saves it in [rbp-0x28].  The global variable 
+holding the username is moved into [rbp-0x8].
+\begin{lstlisting}
+push    rbp
+mov     rbp, rsp
+sub     rsp, 30h
+mov     [rbp-0x28], rdi
+mov     rax, fs:28h
+mov     [rbp-0x08], rax
+xor     eax, eax
+mov     rcx, cs:src
+mov     rax, [rbp-0x28]
+\end{lstlisting}
+Once these variables are set, they are passed to the C function strncat.  It 
+takes three parameters: the destination, the source, and the maximum number of
+bytes to concatenate.
+\begin{lstlisting}
+mov     edx, 0x80       ; number
+mov     rsi, rcx        ; source (username)
+mov     rdi, rax        ; destination (input)
+call    strncat
+\end{lstlisting}
+\par
+The destination will now look similar to this: "100jabraham".  The bomb then 
+calls strlen on the original username variable.
+\begin{lstlisting}
+mov     rax, [rbp+0x28]
+mov     rdi, rax        ; username ("jabraham")
+call    strlen
+\end{lstlisting}
+\par
+The length of the username is saved on the stack at [rbp-0x10].  Then the bomb
+gets ready for a call to sscanf.  This function scans a string using a format
+string and stores each match in following parameters.  Here sscanf is passed 
+the concatenated string, the format specifier "\%u", and the address of a 
+stack variable.  The "\%u" tells us that sscanf is looking for a number, 
+meaning the password for this stage is a single number.  
+\begin{lstlisting}
+mov     [rbp-0x10], rax
+mov     [rbp-0x14], 0
+lea     rdx, [rbp-0x14]
+mov     rax, [rbp-0x28]
+mov     esi, 0x401907  ; "%u"
+mov     rdi, rax
+mov     eax, 0
+call    sscanf
+\end{lstlisting}
+\par
+Next the binary performs series of calculations with the total length and 
+input number.  Note: for readability, I have changed the offsets to reflect
+each stack variable's purpose.
+\begin{lstlisting}
+mov     eax, [rbp+input_as_a_number]
+mov     eax, eax
+mov     edx, 0
+div     [rbp+input_len]
+mov     [rbp+input_as_a_number], eax
+mov     eax, [rbp+input_as_a_number]
+shr     eax, 2
+mov     [rbp+input_as_a_number], eax
+mov     eax, [rbp+input_as_a_number]
+mov     edx, 0AAAAAAABh
+mul     edx
+mov     eax, edx
+shr     eax, 1
+cmp     rax, [rbp+input_len]
+setnbe  al
+\end{lstlisting}
+Let us decode what is happening in this block of code.  The input number is 
+moved to eax.  Then it is divided by the total length of the concatenated
+string.  The result is stored in the input number variable, and a logical 
+shift right 2 is performed on it.  This value is then multiplied by the value
+0xAAAAAAAB and shifted right 1.  The calculated value is compared to the 
+original input length and al is set to one if it is greater.  To summarize 
+the previous in a more readable format, in order to pass this stage your input
+must satisfy the following:
+\[ \frac{input\_number\div input\_len}{12} > input\_len\]
+\par
+If so, the function returns non zero and the bomb continues to stage 6.
+
+\begin{flushleft}
+\textbf{Solve Script:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+In order to solve the stage I wrote a script in Python 3 to quickly perform 
+the math needed.  The script is called "stage3.py" and is located in this
+repository for your convenience.  
+
+\begin{lstlisting}[language=Python]
+from os import getenv
+username = getenv("USER")      # Calculate the length of the username
+usernamelen = len(username)
+ans = 0                        # Start at zero
+
+# Loop until the first number is greater than
+# the length of the number plus the username length
+
+while True:
+    ans += 1                   
+    length = len(str(ans)) + usernamelen   
+    if (ans // length // 12) > length:
+        break
+
+print(ans)
+\end{lstlisting}
+\par
+On the UMBC server, this code gives me the integer value 1872.
+
+\newpage
+\section{Works Cited}
+\begin{thebibliography}{9}
+\bibitem{latexcompanion} 
+Michel Goossens, Frank Mittelbach, and Alexander Samarin. 
+\textit{The \LaTeX\ Companion}. 
+Addison-Wesley, Reading, Massachusetts, 1993.
+ 
+\bibitem{einstein} 
+Albert Einstein. 
+\textit{Zur Elektrodynamik bewegter K{\"o}rper}. (German) 
+[\textit{On the electrodynamics of moving bodies}]. 
+Annalen der Physik, 322(10):891–921, 1905.
+ 
+\bibitem{knuthwebsite} 
+Knuth: Computers and Typesetting,
+\\\texttt{http://www-cs-faculty.stanford.edu/\~{}uno/abcde.html}
+\end{thebibliography}
+
 \end{document}}
