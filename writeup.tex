@@ -1,0 +1,148 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{listings}
+\usepackage{color}
+
+\lstdefinelanguage
+   [x64]{Assembler}     % add a "x64" dialect of Assembler
+   [x86masm]{Assembler} % based on the "x86masm" dialect
+   % with these extra keywords:
+   {morekeywords={CDQE,CQO,CMPSQ,CMPXCHG16B,JRCXZ,LODSQ,MOVSXD, %
+                  POPFQ,PUSHFQ,SCASQ,STOSQ,IRETQ,RDTSCP,SWAPGS, %
+                  rax,rdx,rcx,rbx,rsi,rdi,rsp,rbp, %
+                  r8,r8d,r8w,r8b,r9,r9d,r9w,r9b, %
+                  r10,r10d,r10w,r10b,r11,r11d,r11w,r11b, %
+                  r12,r12d,r12w,r12b,r13,r13d,r13w,r13b, %
+                  r14,r14d,r14w,r14b,r15,r15d,r15w,r15b}} % etc.
+
+\lstset{language=[x64]Assembler}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+ 
+\lstset{style=mystyle}
+
+
+\begin{document}
+
+\begin{titlepage}
+	\centering
+	{\scshape\LARGE Tool Developer Qualification Course\par}
+	\vspace{1cm}
+	{\scshape\Large Reverse Engineering project\par}
+	\vspace{1.5cm}
+	{\huge\bfseries Bomb\par}
+	\vspace{2cm}
+	{\Large\itshape Joshua Abraham\par}
+	\vfill
+	Taught by by\par
+	Dr. Joseph \textsc{Santmeyer}
+	\vfill
+	{\large \today\par}
+\end{titlepage}
+
+
+\newpage
+\tableofcontents
+\newpage
+
+
+\section{Summary}
+\begin{flushleft}
+\vspace{.5pc}
+\end{flushleft}
+\par
+The Fibonacci project has been a challenging experience.  Lack of high-level
+loops, conditionals, etc. made implementing a program that calculates the 
+Fibonacci sequence hard. Having to calculate up to the 500\textsuperscript{th}
+number (an absurdly large value) made it even harder.  However, this project 
+was a resounding success.  All requirements were accomplished, with minimal
+C function calls.  The program is fast, easy to read, and well documented.  I
+learned a great deal during development; one of the most practical lessons was
+being able to translate high-level C into assembly almost line by line.  If I 
+had more time, I would spend it on removing my call to \textit{printf} 
+entirely and use 100\% assembly.
+
+\begin{enumerate}
+  \item Stage 1: swordfish
+  \item Stage 2: jabraham
+  \item Stage 3: 1872
+  \item Stage 4: 107 214 428 856 1713
+  \item Stage 5: ~ 1172 ~
+  \item Stage 6: 48 a 48
+  \item Stage 7: (press enter)
+  \item Stage 8: (run ./stag8.sh in the same directory as the binary, then 
+  press enter).
+\end{enumerate}
+
+\newpage
+\section{Stage 1 Analysis}
+\begin{flushleft}
+\vspace{.5pc}
+\end{flushleft}
+\par
+Stage 1 is straightforward.  Below is an abbreviated listing of the relevant
+disassembled code:
+\begin{lstlisting}
+mov     esi, 0x4018f8   ; "swordfish"
+mov     rdi, rax        ; user input
+call    strcmp
+test    eax, eax
+setz    al
+leave
+\end{lstlisting}
+\par
+This stage calls strcmp with user input and the string "swordfish".  If the 
+return value is zero (meaning the strings are identical), this stage returns 
+non-zero and the program proceeds.
+
+\newpage
+\section{Stage 2 Analysis}
+\begin{flushleft}
+\vspace{.5pc}
+\end{flushleft}
+\par
+Stage 2 starts with a call to getenv.  This function takes one parameter and 
+returns the value of a specified environment variable.
+\begin{lstlisting}
+mov     edi, 0x401902    ; "USER"
+call    getenv
+mov     QWORD PTR [rip+0x201264], rax
+\end{lstlisting}
+\par
+The user name is stored in a global variable that is used throughout the 
+binary at rip+0x201264.  In my case the user name is "jabraham".  This and the 
+saved user input are passed to strcmp, similarly to Stage 1.
+\begin{lstlisting}
+mov     rax, [rbp-0x8]
+mov     rsi, rdx        ; "jabraham"
+mov     rdi, rax        ; "jabraham"
+call    strcmp
+test    eax, eax
+setz    al
+leave
+\end{lstlisting}
+\par
+After the call to strcmp, the program checks the return value in eax and sets 
+al if the zero flag is set.
+\end{document}}
