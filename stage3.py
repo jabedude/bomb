@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from os import getenv
 username = getenv("USER")
 usernamelen = len(username)

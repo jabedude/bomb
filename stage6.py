@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from os import getenv
 
 user_char = getenv("USER")[0]       # Get first char in username

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from os import getenv
 username = getenv("USER")   # Get username
 username_vals = [ord(character) for character in username]
