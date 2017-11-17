@@ -34,6 +34,7 @@ Stage Five:
         342 -= 104
         238
         800 - 238 = 562
+        wrote stage5.py
 
 Stage Six:
         sscanf(in_string, "%d %c %d", num1, character, num2)
