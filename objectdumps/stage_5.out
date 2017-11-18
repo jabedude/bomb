@@ -1,0 +1,125 @@
+Dump of assembler code for function stage_5:
+   0x0000000000401093 <+0>:	55	push   rbp
+   0x0000000000401094 <+1>:	48 89 e5	mov    rbp,rsp
+   0x0000000000401097 <+4>:	48 83 ec 40	sub    rsp,0x40
+   0x000000000040109b <+8>:	48 89 7d c8	mov    QWORD PTR [rbp-0x38],rdi
+   0x000000000040109f <+12>:	64 48 8b 04 25 28 00 00 00	mov    rax,QWORD PTR fs:0x28
+   0x00000000004010a8 <+21>:	48 89 45 f8	mov    QWORD PTR [rbp-0x8],rax
+   0x00000000004010ac <+25>:	31 c0	xor    eax,eax
+   0x00000000004010ae <+27>:	48 8d 75 db	lea    rsi,[rbp-0x25]
+   0x00000000004010b2 <+31>:	48 8d 4d dc	lea    rcx,[rbp-0x24]
+   0x00000000004010b6 <+35>:	48 8d 55 da	lea    rdx,[rbp-0x26]
+   0x00000000004010ba <+39>:	48 8b 45 c8	mov    rax,QWORD PTR [rbp-0x38]
+   0x00000000004010be <+43>:	49 89 f0	mov    r8,rsi
+   0x00000000004010c1 <+46>:	be 19 19 40 00	mov    esi,0x401919
+   0x00000000004010c6 <+51>:	48 89 c7	mov    rdi,rax
+   0x00000000004010c9 <+54>:	b8 00 00 00 00	mov    eax,0x0
+   0x00000000004010ce <+59>:	e8 6d f8 ff ff	call   0x400940 <__isoc99_sscanf@plt>
+   0x00000000004010d3 <+64>:	83 f8 03	cmp    eax,0x3
+   0x00000000004010d6 <+67>:	74 0a	je     0x4010e2 <stage_5+79>
+   0x00000000004010d8 <+69>:	b8 00 00 00 00	mov    eax,0x0
+   0x00000000004010dd <+74>:	e9 56 01 00 00	jmp    0x401238 <stage_5+421>
+   0x00000000004010e2 <+79>:	48 8b 05 3f 10 20 00	mov    rax,QWORD PTR [rip+0x20103f]        # 0x602128
+   0x00000000004010e9 <+86>:	48 89 c7	mov    rdi,rax
+   0x00000000004010ec <+89>:	e8 8f f7 ff ff	call   0x400880 <strlen@plt>
+   0x00000000004010f1 <+94>:	48 89 45 e8	mov    QWORD PTR [rbp-0x18],rax
+   0x00000000004010f5 <+98>:	48 c7 45 e0 00 00 00 00	mov    QWORD PTR [rbp-0x20],0x0
+   0x00000000004010fd <+106>:	48 8b 45 e8	mov    rax,QWORD PTR [rbp-0x18]
+   0x0000000000401101 <+110>:	48 89 45 f0	mov    QWORD PTR [rbp-0x10],rax
+   0x0000000000401105 <+114>:	e9 18 01 00 00	jmp    0x401222 <stage_5+399>
+   0x000000000040110a <+119>:	48 8b 15 17 10 20 00	mov    rdx,QWORD PTR [rip+0x201017]        # 0x602128
+   0x0000000000401111 <+126>:	48 8b 45 e0	mov    rax,QWORD PTR [rbp-0x20]
+   0x0000000000401115 <+130>:	48 01 d0	add    rax,rdx
+   0x0000000000401118 <+133>:	0f b6 00	movzx  eax,BYTE PTR [rax]
+   0x000000000040111b <+136>:	0f be c0	movsx  eax,al
+   0x000000000040111e <+139>:	83 e8 61	sub    eax,0x61
+   0x0000000000401121 <+142>:	83 f8 19	cmp    eax,0x19
+   0x0000000000401124 <+145>:	0f 87 d5 00 00 00	ja     0x4011ff <stage_5+364>
+   0x000000000040112a <+151>:	89 c0	mov    eax,eax
+   0x000000000040112c <+153>:	48 8b 04 c5 28 19 40 00	mov    rax,QWORD PTR [rax*8+0x401928]
+   0x0000000000401134 <+161>:	ff e0	jmp    rax
+   0x0000000000401136 <+163>:	8b 45 dc	mov    eax,DWORD PTR [rbp-0x24]
+   0x0000000000401139 <+166>:	0f b6 55 da	movzx  edx,BYTE PTR [rbp-0x26]
+   0x000000000040113d <+170>:	0f be ca	movsx  ecx,dl
+   0x0000000000401140 <+173>:	48 8b 35 e1 0f 20 00	mov    rsi,QWORD PTR [rip+0x200fe1]        # 0x602128
+   0x0000000000401147 <+180>:	48 8b 55 e0	mov    rdx,QWORD PTR [rbp-0x20]
+   0x000000000040114b <+184>:	48 01 f2	add    rdx,rsi
+   0x000000000040114e <+187>:	0f b6 12	movzx  edx,BYTE PTR [rdx]
+   0x0000000000401151 <+190>:	0f be d2	movsx  edx,dl
+   0x0000000000401154 <+193>:	01 ca	add    edx,ecx
+   0x0000000000401156 <+195>:	29 d0	sub    eax,edx
+   0x0000000000401158 <+197>:	89 45 dc	mov    DWORD PTR [rbp-0x24],eax
+   0x000000000040115b <+200>:	e9 bd 00 00 00	jmp    0x40121d <stage_5+394>
+   0x0000000000401160 <+205>:	8b 55 dc	mov    edx,DWORD PTR [rbp-0x24]
+   0x0000000000401163 <+208>:	48 8b 0d be 0f 20 00	mov    rcx,QWORD PTR [rip+0x200fbe]        # 0x602128
+   0x000000000040116a <+215>:	48 8b 45 e0	mov    rax,QWORD PTR [rbp-0x20]
+   0x000000000040116e <+219>:	48 01 c8	add    rax,rcx
+   0x0000000000401171 <+222>:	0f b6 00	movzx  eax,BYTE PTR [rax]
+   0x0000000000401174 <+225>:	0f be c0	movsx  eax,al
+   0x0000000000401177 <+228>:	29 c2	sub    edx,eax
+   0x0000000000401179 <+230>:	89 d0	mov    eax,edx
+   0x000000000040117b <+232>:	89 45 dc	mov    DWORD PTR [rbp-0x24],eax
+   0x000000000040117e <+235>:	8b 55 dc	mov    edx,DWORD PTR [rbp-0x24]
+   0x0000000000401181 <+238>:	48 8b 0d a0 0f 20 00	mov    rcx,QWORD PTR [rip+0x200fa0]        # 0x602128
+   0x0000000000401188 <+245>:	48 8b 45 e0	mov    rax,QWORD PTR [rbp-0x20]
+   0x000000000040118c <+249>:	48 01 c8	add    rax,rcx
+   0x000000000040118f <+252>:	0f b6 00	movzx  eax,BYTE PTR [rax]
+   0x0000000000401192 <+255>:	0f be c0	movsx  eax,al
+   0x0000000000401195 <+258>:	29 c2	sub    edx,eax
+   0x0000000000401197 <+260>:	89 d0	mov    eax,edx
+   0x0000000000401199 <+262>:	89 45 dc	mov    DWORD PTR [rbp-0x24],eax
+   0x000000000040119c <+265>:	eb 7f	jmp    0x40121d <stage_5+394>
+   0x000000000040119e <+267>:	0f b6 45 db	movzx  eax,BYTE PTR [rbp-0x25]
+   0x00000000004011a2 <+271>:	0f be d0	movsx  edx,al
+   0x00000000004011a5 <+274>:	48 8b 0d 7c 0f 20 00	mov    rcx,QWORD PTR [rip+0x200f7c]        # 0x602128
+   0x00000000004011ac <+281>:	48 8b 45 e0	mov    rax,QWORD PTR [rbp-0x20]
+   0x00000000004011b0 <+285>:	48 01 c8	add    rax,rcx
+   0x00000000004011b3 <+288>:	0f b6 00	movzx  eax,BYTE PTR [rax]
+   0x00000000004011b6 <+291>:	0f be c0	movsx  eax,al
+   0x00000000004011b9 <+294>:	29 c2	sub    edx,eax
+   0x00000000004011bb <+296>:	8b 45 dc	mov    eax,DWORD PTR [rbp-0x24]
+   0x00000000004011be <+299>:	01 d0	add    eax,edx
+   0x00000000004011c0 <+301>:	89 45 dc	mov    DWORD PTR [rbp-0x24],eax
+   0x00000000004011c3 <+304>:	eb 58	jmp    0x40121d <stage_5+394>
+   0x00000000004011c5 <+306>:	8b 45 dc	mov    eax,DWORD PTR [rbp-0x24]
+   0x00000000004011c8 <+309>:	48 8b 0d 59 0f 20 00	mov    rcx,QWORD PTR [rip+0x200f59]        # 0x602128
+   0x00000000004011cf <+316>:	48 8b 55 e0	mov    rdx,QWORD PTR [rbp-0x20]
+   0x00000000004011d3 <+320>:	48 01 ca	add    rdx,rcx
+   0x00000000004011d6 <+323>:	0f b6 12	movzx  edx,BYTE PTR [rdx]
+   0x00000000004011d9 <+326>:	0f be ca	movsx  ecx,dl
+   0x00000000004011dc <+329>:	0f b6 55 db	movzx  edx,BYTE PTR [rbp-0x25]
+   0x00000000004011e0 <+333>:	0f be d2	movsx  edx,dl
+   0x00000000004011e3 <+336>:	01 ca	add    edx,ecx
+   0x00000000004011e5 <+338>:	29 d0	sub    eax,edx
+   0x00000000004011e7 <+340>:	89 45 dc	mov    DWORD PTR [rbp-0x24],eax
+   0x00000000004011ea <+343>:	eb 31	jmp    0x40121d <stage_5+394>
+   0x00000000004011ec <+345>:	8b 55 dc	mov    edx,DWORD PTR [rbp-0x24]
+   0x00000000004011ef <+348>:	0f b6 45 db	movzx  eax,BYTE PTR [rbp-0x25]
+   0x00000000004011f3 <+352>:	0f be c0	movsx  eax,al
+   0x00000000004011f6 <+355>:	29 c2	sub    edx,eax
+   0x00000000004011f8 <+357>:	89 d0	mov    eax,edx
+   0x00000000004011fa <+359>:	89 45 dc	mov    DWORD PTR [rbp-0x24],eax
+   0x00000000004011fd <+362>:	eb 1e	jmp    0x40121d <stage_5+394>
+   0x00000000004011ff <+364>:	8b 55 dc	mov    edx,DWORD PTR [rbp-0x24]
+   0x0000000000401202 <+367>:	48 8b 0d 1f 0f 20 00	mov    rcx,QWORD PTR [rip+0x200f1f]        # 0x602128
+   0x0000000000401209 <+374>:	48 8b 45 e0	mov    rax,QWORD PTR [rbp-0x20]
+   0x000000000040120d <+378>:	48 01 c8	add    rax,rcx
+   0x0000000000401210 <+381>:	0f b6 00	movzx  eax,BYTE PTR [rax]
+   0x0000000000401213 <+384>:	0f be c0	movsx  eax,al
+   0x0000000000401216 <+387>:	29 c2	sub    edx,eax
+   0x0000000000401218 <+389>:	89 d0	mov    eax,edx
+   0x000000000040121a <+391>:	89 45 dc	mov    DWORD PTR [rbp-0x24],eax
+   0x000000000040121d <+394>:	48 83 45 e0 01	add    QWORD PTR [rbp-0x20],0x1
+   0x0000000000401222 <+399>:	48 8b 45 e0	mov    rax,QWORD PTR [rbp-0x20]
+   0x0000000000401226 <+403>:	48 3b 45 e8	cmp    rax,QWORD PTR [rbp-0x18]
+   0x000000000040122a <+407>:	0f 82 da fe ff ff	jb     0x40110a <stage_5+119>
+   0x0000000000401230 <+413>:	8b 45 dc	mov    eax,DWORD PTR [rbp-0x24]
+   0x0000000000401233 <+416>:	85 c0	test   eax,eax
+   0x0000000000401235 <+418>:	0f 94 c0	sete   al
+   0x0000000000401238 <+421>:	48 8b 7d f8	mov    rdi,QWORD PTR [rbp-0x8]
+   0x000000000040123c <+425>:	64 48 33 3c 25 28 00 00 00	xor    rdi,QWORD PTR fs:0x28
+   0x0000000000401245 <+434>:	74 05	je     0x40124c <stage_5+441>
+   0x0000000000401247 <+436>:	e8 44 f6 ff ff	call   0x400890 <__stack_chk_fail@plt>
+   0x000000000040124c <+441>:	c9	leave  
+   0x000000000040124d <+442>:	c3	ret    
+End of assembler dump.
