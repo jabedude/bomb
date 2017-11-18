@@ -1,0 +1,68 @@
+Dump of assembler code for function ___:
+   0x000000000040124e <+0>:	55	push   rbp
+   0x000000000040124f <+1>:	48 89 e5	mov    rbp,rsp
+   0x0000000000401252 <+4>:	53	push   rbx
+   0x0000000000401253 <+5>:	48 83 ec 18	sub    rsp,0x18
+   0x0000000000401257 <+9>:	89 7d ec	mov    DWORD PTR [rbp-0x14],edi
+   0x000000000040125a <+12>:	89 75 e8	mov    DWORD PTR [rbp-0x18],esi
+   0x000000000040125d <+15>:	83 7d ec 00	cmp    DWORD PTR [rbp-0x14],0x0
+   0x0000000000401261 <+19>:	75 18	jne    0x40127b <___+45>
+   0x0000000000401263 <+21>:	83 7d e8 00	cmp    DWORD PTR [rbp-0x18],0x0
+   0x0000000000401267 <+25>:	75 12	jne    0x40127b <___+45>
+   0x0000000000401269 <+27>:	48 8b 05 b8 0e 20 00	mov    rax,QWORD PTR [rip+0x200eb8]        # 0x602128
+   0x0000000000401270 <+34>:	0f b6 00	movzx  eax,BYTE PTR [rax]
+   0x0000000000401273 <+37>:	0f be c0	movsx  eax,al
+   0x0000000000401276 <+40>:	e9 9d 00 00 00	jmp    0x401318 <___+202>
+   0x000000000040127b <+45>:	83 7d ec 00	cmp    DWORD PTR [rbp-0x14],0x0
+   0x000000000040127f <+49>:	7f 3d	jg     0x4012be <___+112>
+   0x0000000000401281 <+51>:	48 8b 0d a0 0e 20 00	mov    rcx,QWORD PTR [rip+0x200ea0]        # 0x602128
+   0x0000000000401288 <+58>:	48 8b 05 a1 0e 20 00	mov    rax,QWORD PTR [rip+0x200ea1]        # 0x602130
+   0x000000000040128f <+65>:	48 8d 50 ff	lea    rdx,[rax-0x1]
+   0x0000000000401293 <+69>:	8b 45 e8	mov    eax,DWORD PTR [rbp-0x18]
+   0x0000000000401296 <+72>:	48 98	cdqe   
+   0x0000000000401298 <+74>:	48 39 c2	cmp    rdx,rax
+   0x000000000040129b <+77>:	48 0f 46 c2	cmovbe rax,rdx
+   0x000000000040129f <+81>:	48 01 c8	add    rax,rcx
+   0x00000000004012a2 <+84>:	0f b6 00	movzx  eax,BYTE PTR [rax]
+   0x00000000004012a5 <+87>:	0f be d8	movsx  ebx,al
+   0x00000000004012a8 <+90>:	8b 45 e8	mov    eax,DWORD PTR [rbp-0x18]
+   0x00000000004012ab <+93>:	8d 50 ff	lea    edx,[rax-0x1]
+   0x00000000004012ae <+96>:	8b 45 e8	mov    eax,DWORD PTR [rbp-0x18]
+   0x00000000004012b1 <+99>:	89 d6	mov    esi,edx
+   0x00000000004012b3 <+101>:	89 c7	mov    edi,eax
+   0x00000000004012b5 <+103>:	e8 94 ff ff ff	call   0x40124e <___>
+   0x00000000004012ba <+108>:	01 d8	add    eax,ebx
+   0x00000000004012bc <+110>:	eb 5a	jmp    0x401318 <___+202>
+   0x00000000004012be <+112>:	83 7d e8 00	cmp    DWORD PTR [rbp-0x18],0x0
+   0x00000000004012c2 <+116>:	7f 3f	jg     0x401303 <___+181>
+   0x00000000004012c4 <+118>:	48 8b 0d 5d 0e 20 00	mov    rcx,QWORD PTR [rip+0x200e5d]        # 0x602128
+   0x00000000004012cb <+125>:	48 8b 05 5e 0e 20 00	mov    rax,QWORD PTR [rip+0x200e5e]        # 0x602130
+   0x00000000004012d2 <+132>:	48 8d 50 ff	lea    rdx,[rax-0x1]
+   0x00000000004012d6 <+136>:	8b 45 ec	mov    eax,DWORD PTR [rbp-0x14]
+   0x00000000004012d9 <+139>:	48 98	cdqe   
+   0x00000000004012db <+141>:	48 39 c2	cmp    rdx,rax
+   0x00000000004012de <+144>:	48 0f 46 c2	cmovbe rax,rdx
+   0x00000000004012e2 <+148>:	48 01 c8	add    rax,rcx
+   0x00000000004012e5 <+151>:	0f b6 00	movzx  eax,BYTE PTR [rax]
+   0x00000000004012e8 <+154>:	0f be d8	movsx  ebx,al
+   0x00000000004012eb <+157>:	8b 45 ec	mov    eax,DWORD PTR [rbp-0x14]
+   0x00000000004012ee <+160>:	8d 50 ff	lea    edx,[rax-0x1]
+   0x00000000004012f1 <+163>:	8b 45 ec	mov    eax,DWORD PTR [rbp-0x14]
+   0x00000000004012f4 <+166>:	89 c6	mov    esi,eax
+   0x00000000004012f6 <+168>:	89 d7	mov    edi,edx
+   0x00000000004012f8 <+170>:	e8 51 ff ff ff	call   0x40124e <___>
+   0x00000000004012fd <+175>:	29 c3	sub    ebx,eax
+   0x00000000004012ff <+177>:	89 d8	mov    eax,ebx
+   0x0000000000401301 <+179>:	eb 15	jmp    0x401318 <___+202>
+   0x0000000000401303 <+181>:	8b 45 ec	mov    eax,DWORD PTR [rbp-0x14]
+   0x0000000000401306 <+184>:	8d 50 ff	lea    edx,[rax-0x1]
+   0x0000000000401309 <+187>:	8b 45 e8	mov    eax,DWORD PTR [rbp-0x18]
+   0x000000000040130c <+190>:	83 e8 01	sub    eax,0x1
+   0x000000000040130f <+193>:	89 d6	mov    esi,edx
+   0x0000000000401311 <+195>:	89 c7	mov    edi,eax
+   0x0000000000401313 <+197>:	e8 36 ff ff ff	call   0x40124e <___>
+   0x0000000000401318 <+202>:	48 83 c4 18	add    rsp,0x18
+   0x000000000040131c <+206>:	5b	pop    rbx
+   0x000000000040131d <+207>:	5d	pop    rbp
+   0x000000000040131e <+208>:	c3	ret    
+End of assembler dump.
