@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage[margin=1in]{geometry}
 \usepackage{listings}
+\usepackage{amsmath}
 \usepackage{color}
 
 \lstdefinelanguage
@@ -77,6 +78,7 @@ solve challenges like these.  Some of the assembly code snippets in this
 document has been edited to be more readable (i.e. identifying local 
 variables with a name like "input" instead of an rbp offset).
 \begin{lstlisting}[language=bash]
+nm bomb > symbols.out
 gdb -batch -ex 'file ./bomb.patched' -ex 'disassemble /r stage_1' > objectdumps/stage_1.out
 ....
 gdb -batch -ex 'file ./bomb.patched' -ex 'disassemble /r stage_8' > objectdumps/stage_8.out
@@ -108,9 +110,14 @@ disassemble /r _start
 quit
 \end{lstlisting}
 
+\par
 Using an x64 assembler I found that the je and jne instructions are the same
 size, and only differ by one byte.  We can skip the fake segfault message by
-making a patched copy of the bomb binary that will run in a debugger.
+making a patched copy of the bomb binary that will run in a debugger (note 
+that the patched binary will only work in a debugger).
+
+\par
+My solutions to the stages are as follows:
 
 \begin{enumerate}
   \item Stage 1: swordfish
@@ -122,6 +129,7 @@ making a patched copy of the bomb binary that will run in a debugger.
   \item Stage 7: (press enter)
   \item Stage 8: (run ./stag8.sh in the same directory as the binary, then 
   press enter).
+  \item Stage ?: Did not complete.
 \end{enumerate}
 
 \newpage
@@ -150,17 +158,6 @@ leave
 This stage calls strcmp with user input and the string "swordfish".  If the 
 return value is zero (meaning the strings are identical), this stage returns 
 non-zero and the program proceeds.
-
-\begin{flushleft}
-\textbf{Pseudocode:}
-\vspace{.5pc}
-\end{flushleft}
-\begin{lstlisting}[language=C]
-bool stage_1(char *user_input)
-{
-  return strcmp(user_input, "swordfish") == 0;
-}
-\end{lstlisting}
 
 \begin{flushleft}
 \textbf{Solve Script:}
@@ -206,18 +203,6 @@ leave
 After the call to strcmp, the program checks the return value in eax and sets 
 al if the zero flag is set.  The stage is passed if the user supplies their 
 own username.
-
-\begin{flushleft}
-\textbf{Pseudocode:}
-\vspace{.5pc}
-\end{flushleft}
-\begin{lstlisting}[language=C]
-bool stage_2(char *user_input)
-{
-  username = getenv("USER");
-  return strcmp(user_input, username) == 0;
-}
-\end{lstlisting}
 
 \begin{flushleft}
 \textbf{Solve Script:}
@@ -318,23 +303,6 @@ must satisfy the following:
 \[ \frac{input\_number\div input\_len}{12} > input\_len\]
 \par
 If so, the function returns non zero and the bomb continues to stage 6.
-
-\begin{flushleft}
-\textbf{Pseudocode:}
-\vspace{.5pc}
-\end{flushleft}
-\begin{lstlisting}[language=C]
-bool stage_3(char *user_input)
-{
-  int input_as_a_number;
-  int input_len;
-  unsigned __int64 v4;
-  strncat(user_input, username, 128);
-  input_len = strlen(user_input);
-  sscanf(user_input, "%u", &input_as_a_number);
-  return (input_as_a_number / input_len) / 12 > input_len;
-}
-\end{lstlisting}
 
 \begin{flushleft}
 \textbf{Solve Script:}
@@ -529,8 +497,9 @@ objdump -s -j .rodata bomb.patched > objectdumps/.rodata
 I write a python script where I annotate each jump for each value.  It is 
 called stage5.py.  Once the code gets to the offset, one of the input 
 characters is added to or subtracted from the input number.  The calculation
-depends on the ASCII value of each character in the username.  The actual 
-calculations are in the stage5.py file.  
+depends on the ASCII value of each character in the username.  The stage 
+passes if the final value is zero.  The actual calculations are in the 
+stage5.py file.  
 
 \begin{flushleft}
 \textbf{Solve Script:}
@@ -600,12 +569,98 @@ This script gives me "~ 1172 ~" on the server.
 \vspace{.5pc}
 \end{flushleft}
 \par
-Stage 6
+Stage 6 begins with a call to sscanf on the user input.  The equivalent C code
+is as follows:
+\begin{lstlisting}[language=C]
+sscanf(in_string, "%d %c %d", num1, character, num2);
+\end{lstlisting}
+\par
+We can see that we are expected to pass an integer, a character, and an 
+integer to the stage.  Next, stage\_6 calls a function called \_\_\_ with the 
+two integers from user input.
+\begin{lstlisting}
+mov     edx, [rbp+num_two]
+mov     eax, [rbp+num_one]
+mov     esi, edx
+mov     edi, eax
+call    ___
+\end{lstlisting}
+This function is recursive and makes several calls back to itself.  Looking 
+through the objdumb we can see the termination criteria:
+\begin{lstlisting}
+cmp     [rbp+first_number], 0
+jnz     0x1a
+...
+cmp     [rbp+second_number], 0
+jnz     0x14
+...
+mov     rax, QWORD PTR [rip+0x200eb8]      ; username
+movzx   eax, byte ptr [rax]
+movsx   eax, al
+...
+ret
+\end{lstlisting}
+\par
+This was my first time seeing recursion in assembly, but the key is to look
+for what causes the recursion to walk back up to the original caller.  In this
+case, we can see that happens if the parameters are 0.  The \_\_\_ function
+then returns the first character in the username, in this case 'j'.  Now, back
+in stage\_4:
+\begin{lstlisting}
+mov     [rbp+first_letter], eax
+movzx   eax, [rbp+input_character]
+movsx   eax, al
+and     eax, [rbp+first_letter]
+mov     ecx, [rbp+num_one]
+mov     edx, [rbp+num_two]
+add     edx, ecx
+cmp     eax, edx
+setz    al
+\end{lstlisting}
+\par
+The return value from \_\_\_ is put in a local variable, and a does a bitwise
+and with it and the input character.  If this value equals the sum of the two
+input integers, the stage is passed.  The pseudocode looks like this:
+\begin{lstlisting}[language=Python]
+return (first_letter & input_character) == num_one + num_two
+\end{lstlisting}
+\par
+Since we have 'j' (106) 106 logical and \& the character must equal the sum of
+our numbers lets pick a number that we know \& 106 that will be even (to get 
+equal factors) will land us in the printable range (48 - 126):
+\begin{align*}
+        106 \& 103 == 98\\
+        98 / 2 = 49\\
+        103 == g
+\end{align*}
+So a working solution is "49 g 49".  I wrote a Python 3 script to automate the 
+math.
+
 \begin{flushleft}
 \textbf{Solve Script:}
 \vspace{.5pc}
 \end{flushleft}
 \par
+The script starts with the ASCII value of 'a', and increments up until a match
+is found.
+\begin{lstlisting}[language=Python]
+from os import getenv
+
+user_char = getenv("USER")[0]       # Get first char in username
+user_char = ord(user_char)
+
+startchar = ord('a')
+
+while True:
+    if (user_char & startchar) % 2 == 0:
+        char = (user_char & startchar) // 2
+        print("{} {} {}".format(char, chr(startchar), char))
+        break
+    else:
+        startchar += 1
+\end{lstlisting}
+\par
+This gives me "48 a 48" on the server.
 
 \newpage
 \section{Stage 7 Analysis}
@@ -618,12 +673,33 @@ Stage 6
 \vspace{.5pc}
 \end{flushleft}
 \par
-
+Stage 7 required me to carefully read the disassembly in order to find the 
+solution.  Unlike previous stages, the is no sscanf to signal the format that
+the stage is expecting.  They key in this stage is to work backwards from the
+return.  We know that stage\_7 needs to return non-zero in order to pass the
+stage, so we look for any time the eax register is manipulated before the ret.
+\begin{lstlisting}
+cmp     [rbp-0x8], rax
+setz    al
+\end{lstlisting}
+Here is one such instruction at 0x40142b.  There are two ways to get to this 
+code, but one of them is interesting:
+\begin{lstlisting}
+mov     rax, [rbp+input]
+movzx   eax, byte ptr [rax]
+test    al, al
+jnz     0x4013c7
+\end{lstlisting}
+\par
+If the input is zero, the jump is not taken, allowing us to fall through to 
+the set instruction.  The user input isn't manipulated anywhere else, so if
+there is no input the stage passes.
 \begin{flushleft}
 \textbf{Solve Script:}
 \vspace{.5pc}
 \end{flushleft}
 \par
+None was needed for this stage.  
 
 \newpage
 \section{Stage 8 Analysis}
@@ -636,6 +712,126 @@ Stage 6
 \vspace{.5pc}
 \end{flushleft}
 \par
+Stage 8 was a challenge that required dynamic analysis.  Reading ahead in the
+disassembly, we can see several "call syscall" instructions.  Instead of using
+sscanf to get user input, this stage appears to be using system calls provided
+by the kernel to get the user password.  I used gdb to complete this stage.
+
+\begin{lstlisting}[language=Bash]
+gdb -q ./bomb.patched
+(gdb) b stage_8
+...
+<give each stage the correct flag here>
+...
+(gdb) si <until 0x4016fe>
+(gdb) disas
+(gdb) x/s 0x401ab0
+0x401ab0:       "%d %c %d"
+\end{lstlisting}
+We saw stage\_8 call malloc and check the return value.  Now we are at the 
+first call to syscall, and we see that it is getting 4 parameters: 0x2, "\%d
+\%c \%d", and 0x40000.  Looking up the Linux x64 syscall table 
+(https://filippo.io/linux-syscall-table/) we can see that 0x2 is the "open" 
+call.  This call opens files, so we can guess that solving this stage requires
+a file.  There is a trick here, the stage moves 0x6020e0 to a local variable.
+Running "x/s 0x6020e0" in gdb shows us that this is "stage\_8\_input.txt".  
+However, the Linux x64 Application Binary Interface requires 6 registers to be
+used before passing stack parameters to a function call, so this is a red 
+herring.  I run the following command to create the required file:
+\begin{lstlisting}
+touch %d\ %c\ %d
+\end{lstlisting}
+\par
+Stepping over the system call, we see that if the open is successful, we jump
+to a setup for another system call.  Run "disas" in gdb to see the parameters
+for this call.  We see 0, the return value from open, a variable from the 
+earlier malloc, and a number (0x80).  Using the system call reference, we can
+see that this is a read call.  Data read from the file descriptor from open 
+will be put into the memory from the malloc.  So the binary is reading from 
+the "\%d \%c \%d" file.  Looking at the objdump output, we can see that there 
+is a check on the return value as follows:
+\begin{lstlisting}
+0x0000000000401757 <+148>:mov    QWORD PTR [rbp-0x8],rax
+0x000000000040175b <+152>:cmp    QWORD PTR [rbp-0x8],0x3f
+0x0000000000401760 <+157>:jg     0x401778 <stage_8+181>
+\end{lstlisting}
+\par
+If the return value is greater than 0x3f ($63_{10}$), we continue.  I run the
+following command to put 80 bytes of text in the file: 
+\begin{lstlisting}[language=Bash]
+python2 -c "print 'x' * 80" >> %d\ %c\ %d
+\end{lstlisting}
+Back in gdb, step over the read and through the check.  We are now at this block of code:
+\begin{lstlisting}
+0x0000000000401778 <+181>:mov    rax,QWORD PTR [rbp-0x10]
+0x000000000040177c <+185>:mov    rsi,rax
+0x000000000040177f <+188>:mov    edi,0x3
+0x0000000000401784 <+193>:mov    eax,0x0
+0x0000000000401789 <+198>:call   0x400900 <syscall@plt>
+0x000000000040178e <+203>:mov    QWORD PTR [rbp-0x10],rax
+0x0000000000401792 <+207>:cmp    QWORD PTR [rbp-0x10],0x0
+\end{lstlisting}
+\par
+We can see one more syscall with the following parameters: 3 and the file 
+descriptor.  System call 3 is close, and this command closes the file.  Step
+through this.  We then see a value moved into rbp-0x20.  In gdb use 
+"x/6c \$rbp-0x20" to view the characters ('5\$,1\$3').  After stepping in gdb,
+we can see that the first byte from the file is compared with 0x41 and if they
+are equal, the stage fails.  This check will not fail unless the file had 'A'
+in it.  Continue stepping and we see that the stage does a logical xor of the
+byte from magic string with 0x41 and compares with the byte from the file:
+\begin{lstlisting}
+0x00000000004017d2 <+271>:mov    rax,QWORD PTR [rbp-0x20]
+0x00000000004017d6 <+275>:movzx  eax,BYTE PTR [rax]
+0x00000000004017d9 <+278>:xor    eax,0x41
+0x00000000004017dc <+281<:cmp    dl,al
+0x00000000004017de <+283>:je     0x4017b6 <stage_8+243>
+\end{lstlisting}
+\par
+Now we know that the binary is decoding the magic string with a simple xor,
+so we can find the correct input by xor-ing each byte of the \$rbp-0x20 
+variable:
+\begin{eqnarray*}
+ '5' \oplus   0x41 = 't' \\ 
+ '\$' \oplus  0x41 = 'e' \\ 
+ ',' \oplus   0x41 = 'm' \\ 
+ '1' \oplus   0x41 = 'p' \\ 
+ '\$' \oplus  0x41 = 'e' \\ 
+ '3' \oplus   0x41 = 'r' \\ 
+\end{eqnarray*}
+\par
+So our input file must have the word "temper".  Let's start over but with a 
+correct input file:
+
+\begin{lstlisting}[language=Bash]
+echo temper > %d\ %c\ %d
+python2 -c "print 'x' * 80" >> %d\ %c\ %d
+gdb ./bomb.patched -q
+b 0x00000000004017d9
+r
+...
+<give correct flags here>
+...
+<step until the string check is done>
+\end{lstlisting}
+\par
+Remembering past lessons, we need stage\_8 to return non-zero.  We can see the 
+goal at address 0x00000000004017f6 (mov eax, 0x1).  In order for that 
+instruction to be reached, the jump prior can't be taken.  Let's take a look 
+at the code:
+\begin{lstlisting}
+0x00000000004017eb <+296>:mov    rax,QWORD PTR [rbp-0x20]
+0x00000000004017ef <+300>:movzx  eax,BYTE PTR [rax]
+0x00000000004017f2 <+303>:test   al,al
+0x00000000004017f4 <+305>:jne    0x4017fd <stage_8+314>
+0x00000000004017f6 <+307>:mov    eax,0x1
+\end{lstlisting}
+\par
+If the test al, al sets the Zero Flag, the jump does not happen.  This means
+eax has to have a zero in it.  In order for that to happen, the input file 
+needs a null byte after the magic string.  Putting together everything we 
+know, this script is what we need:
+
 
 \begin{flushleft}
 \textbf{Solve Script:}
@@ -643,23 +839,39 @@ Stage 6
 \end{flushleft}
 \par
 
+\begin{lstlisting}[language=Bash]
+echo temper > %d\ %c\ %d                        # Create and put the xor's hiddenmessage
+printf "\0" >> %d\ %c\ %d                       # Append a null bute
+python2 -c "print 'a' * 80" >> %d\ %c\ %d       # to meet the 63 byte requirement
+\end{lstlisting}
+
+\newpage
+\section{Secret Stage Analysis}
+\begin{flushleft}
+\vspace{.5pc}
+\end{flushleft}
+
+\begin{flushleft}
+\textbf{Analysis:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+Unfortunately I did not have enough time to tackle the secret stage.  My 
+analysis is that the stage performs checks on global variable referenced 
+throughout the bomb and in order to reach the stage, you must supply specially 
+crafted input to earlier stages.
+
+
 \newpage
 \section{Works Cited}
 \begin{thebibliography}{9}
-\bibitem{latexcompanion} 
-Michel Goossens, Frank Mittelbach, and Alexander Samarin. 
-\textit{The \LaTeX\ Companion}. 
-Addison-Wesley, Reading, Massachusetts, 1993.
+\bibitem{so1} 
+Switch case assembly level code. (n.d.). Retrieved November 18, 2017, from https://stackoverflow.com/questions/3012011/switch-case-assembly-level-code
+.
  
-\bibitem{einstein} 
-Albert Einstein. 
-\textit{Zur Elektrodynamik bewegter K{\"o}rper}. (German) 
-[\textit{On the electrodynamics of moving bodies}]. 
-Annalen der Physik, 322(10):891–921, 1905.
+\bibitem{so2} 
+JMP instruction - Hex code. (n.d.). Retrieved November 18, 2017, from https://stackoverflow.com/questions/9815448/jmp-instruction-hex-code
  
-\bibitem{knuthwebsite} 
-Knuth: Computers and Typesetting,
-\\\texttt{http://www-cs-faculty.stanford.edu/\~{}uno/abcde.html}
 \end{thebibliography}
 
 \end{document}}
