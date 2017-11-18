@@ -1,0 +1,40 @@
+Dump of assembler code for function stage_7:
+   0x00000000004013aa <+0>:	55	push   rbp
+   0x00000000004013ab <+1>:	48 89 e5	mov    rbp,rsp
+   0x00000000004013ae <+4>:	48 89 7d e8	mov    QWORD PTR [rbp-0x18],rdi
+   0x00000000004013b2 <+8>:	48 8b 05 48 06 00 00	mov    rax,QWORD PTR [rip+0x648]        # 0x401a01
+   0x00000000004013b9 <+15>:	48 89 45 f0	mov    QWORD PTR [rbp-0x10],rax
+   0x00000000004013bd <+19>:	48 c7 45 f8 00 00 00 00	mov    QWORD PTR [rbp-0x8],0x0
+   0x00000000004013c5 <+27>:	eb 47	jmp    0x40140e <stage_7+100>
+   0x00000000004013c7 <+29>:	48 8b 45 e8	mov    rax,QWORD PTR [rbp-0x18]
+   0x00000000004013cb <+33>:	0f b6 30	movzx  esi,BYTE PTR [rax]
+   0x00000000004013ce <+36>:	48 8b 0d 53 0d 20 00	mov    rcx,QWORD PTR [rip+0x200d53]        # 0x602128
+   0x00000000004013d5 <+43>:	48 8b 45 f8	mov    rax,QWORD PTR [rbp-0x8]
+   0x00000000004013d9 <+47>:	48 8d 50 01	lea    rdx,[rax+0x1]
+   0x00000000004013dd <+51>:	48 89 55 f8	mov    QWORD PTR [rbp-0x8],rdx
+   0x00000000004013e1 <+55>:	48 01 c8	add    rax,rcx
+   0x00000000004013e4 <+58>:	0f b6 00	movzx  eax,BYTE PTR [rax]
+   0x00000000004013e7 <+61>:	31 c6	xor    esi,eax
+   0x00000000004013e9 <+63>:	89 f2	mov    edx,esi
+   0x00000000004013eb <+65>:	48 8b 45 f0	mov    rax,QWORD PTR [rbp-0x10]
+   0x00000000004013ef <+69>:	0f b6 40 08	movzx  eax,BYTE PTR [rax+0x8]
+   0x00000000004013f3 <+73>:	38 c2	cmp    dl,al
+   0x00000000004013f5 <+75>:	74 07	je     0x4013fe <stage_7+84>
+   0x00000000004013f7 <+77>:	b8 00 00 00 00	mov    eax,0x0
+   0x00000000004013fc <+82>:	eb 30	jmp    0x40142e <stage_7+132>
+   0x00000000004013fe <+84>:	48 8b 45 f0	mov    rax,QWORD PTR [rbp-0x10]
+   0x0000000000401402 <+88>:	48 8b 00	mov    rax,QWORD PTR [rax]
+   0x0000000000401405 <+91>:	48 89 45 f0	mov    QWORD PTR [rbp-0x10],rax
+   0x0000000000401409 <+95>:	48 83 45 e8 01	add    QWORD PTR [rbp-0x18],0x1
+   0x000000000040140e <+100>:	48 83 7d f0 00	cmp    QWORD PTR [rbp-0x10],0x0
+   0x0000000000401413 <+105>:	74 0b	je     0x401420 <stage_7+118>
+   0x0000000000401415 <+107>:	48 8b 45 e8	mov    rax,QWORD PTR [rbp-0x18]
+   0x0000000000401419 <+111>:	0f b6 00	movzx  eax,BYTE PTR [rax]
+   0x000000000040141c <+114>:	84 c0	test   al,al
+   0x000000000040141e <+116>:	75 a7	jne    0x4013c7 <stage_7+29>
+   0x0000000000401420 <+118>:	48 8b 05 09 0d 20 00	mov    rax,QWORD PTR [rip+0x200d09]        # 0x602130
+   0x0000000000401427 <+125>:	48 39 45 f8	cmp    QWORD PTR [rbp-0x8],rax
+   0x000000000040142b <+129>:	0f 94 c0	sete   al
+   0x000000000040142e <+132>:	5d	pop    rbp
+   0x000000000040142f <+133>:	c3	ret    
+End of assembler dump.
