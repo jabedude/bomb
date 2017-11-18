@@ -71,16 +71,46 @@
 \vspace{.5pc}
 \end{flushleft}
 \par
-The Fibonacci project has been a challenging experience.  Lack of high-level
-loops, conditionals, etc. made implementing a program that calculates the 
-Fibonacci sequence hard. Having to calculate up to the 500\textsuperscript{th}
-number (an absurdly large value) made it even harder.  However, this project 
-was a resounding success.  All requirements were accomplished, with minimal
-C function calls.  The program is fast, easy to read, and well documented.  I
-learned a great deal during development; one of the most practical lessons was
-being able to translate high-level C into assembly almost line by line.  If I 
-had more time, I would spend it on removing my call to \textit{printf} 
-entirely and use 100\% assembly.
+I began my analysis by reading the assembly of each stage to get a general
+idea of what they were doing.  This static analysis is my preferred way to
+solve challenges like these.  Some of the assembly code snippets in this
+document has been edited to be more readable (i.e. identifying local 
+variables with a name like "input" instead of an rbp offset).
+\begin{lstlisting}[language=bash]
+gdb -batch -ex 'file ./bomb.patched' -ex 'disassemble /r stage_1' > objectdumps/stage_1.out
+....
+gdb -batch -ex 'file ./bomb.patched' -ex 'disassemble /r stage_8' > objectdumps/stage_8.out
+\end{lstlisting}
+
+\par
+While performing dynamic analysis with the GNU Debugger (gdb), the program 
+pretends to segfault by detecting that it is being debugged.  The program 
+uses ptrace to do so, a common anti-reverse engineering tactic.  While the
+majority of my analysis of the code was static, just reading the code and
+translating to higher level constructs, I occasionally needed to perform 
+tests with the binary.  To avoid having to manually step over the call to 
+ptrace in \_start every single time, I patched the binary with gdb to call
+main \textit{if it was being debugged}, instead of if it was not.  I did so
+with the following commands:
+
+\begin{lstlisting}[language=bash]
+cp bomb bomb.patched
+gdb -write -q ./bomb.patched
+disassemble /r _start
+....
+0x0000000000401461 <+49>:    75 60    jne    0x4014c3
+....
+set {unsigned char}0x0000000000401461 = 0x74
+disassemble /r _start
+....
+0x0000000000401461 <+49>:    74 60    je     0x4014c3
+....
+quit
+\end{lstlisting}
+
+Using an x64 assembler I found that the je and jne instructions are the same
+size, and only differ by one byte.  We can skip the fake segfault message by
+making a patched copy of the bomb binary that will run in a debugger.
 
 \begin{enumerate}
   \item Stage 1: swordfish
@@ -99,6 +129,12 @@ entirely and use 100\% assembly.
 \begin{flushleft}
 \vspace{.5pc}
 \end{flushleft}
+
+\begin{flushleft}
+\textbf{Analysis:}
+\vspace{.5pc}
+\end{flushleft}
+
 \par
 Stage 1 is straightforward.  Below is an abbreviated listing of the relevant
 disassembled code:
@@ -115,11 +151,36 @@ This stage calls strcmp with user input and the string "swordfish".  If the
 return value is zero (meaning the strings are identical), this stage returns 
 non-zero and the program proceeds.
 
+\begin{flushleft}
+\textbf{Pseudocode:}
+\vspace{.5pc}
+\end{flushleft}
+\begin{lstlisting}[language=C]
+bool stage_1(char *user_input)
+{
+  return strcmp(user_input, "swordfish") == 0;
+}
+\end{lstlisting}
+
+\begin{flushleft}
+\textbf{Solve Script:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+Since there was no math needed to calculate my password for this stage, no 
+script was needed.
+
 \newpage
 \section{Stage 2 Analysis}
 \begin{flushleft}
 \vspace{.5pc}
 \end{flushleft}
+
+\begin{flushleft}
+\textbf{Analysis:}
+\vspace{.5pc}
+\end{flushleft}
+
 \par
 Stage 2 starts with a call to getenv.  This function takes one parameter and 
 returns the value of a specified environment variable.
@@ -145,6 +206,26 @@ leave
 After the call to strcmp, the program checks the return value in eax and sets 
 al if the zero flag is set.  The stage is passed if the user supplies their 
 own username.
+
+\begin{flushleft}
+\textbf{Pseudocode:}
+\vspace{.5pc}
+\end{flushleft}
+\begin{lstlisting}[language=C]
+bool stage_2(char *user_input)
+{
+  username = getenv("USER");
+  return strcmp(user_input, username) == 0;
+}
+\end{lstlisting}
+
+\begin{flushleft}
+\textbf{Solve Script:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+As with Stage 1, there was no need to perform calculations to find the 
+password for this stage.
 
 \newpage
 \section{Stage 3 Analysis}
@@ -239,6 +320,23 @@ must satisfy the following:
 If so, the function returns non zero and the bomb continues to stage 6.
 
 \begin{flushleft}
+\textbf{Pseudocode:}
+\vspace{.5pc}
+\end{flushleft}
+\begin{lstlisting}[language=C]
+bool stage_3(char *user_input)
+{
+  int input_as_a_number;
+  int input_len;
+  unsigned __int64 v4;
+  strncat(user_input, username, 128);
+  input_len = strlen(user_input);
+  sscanf(user_input, "%u", &input_as_a_number);
+  return (input_as_a_number / input_len) / 12 > input_len;
+}
+\end{lstlisting}
+
+\begin{flushleft}
 \textbf{Solve Script:}
 \vspace{.5pc}
 \end{flushleft}
@@ -266,6 +364,284 @@ print(ans)
 \end{lstlisting}
 \par
 On the UMBC server, this code gives me the integer value 1872.
+
+\newpage
+\section{Stage 4 Analysis}
+\begin{flushleft}
+\vspace{.5pc}
+\end{flushleft}
+
+\begin{flushleft}
+\textbf{Analysis:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+Stage 4's disassembly has conditionals and jumps, making a little bit more
+difficult to read but still straightforward.
+
+\begin{lstlisting}
+mov     eax,DWORD PTR ds:0x201170       ; the username
+movzx   eax, byte ptr [rax]
+movsx   eax, al
+mov     [rbp+first_letter_in_username], eax
+\end{lstlisting}
+stage\_4 starts by saving the first character in the username in a local 
+stack variable.  
+
+\begin{lstlisting}
+mov     r9, rsi
+mov     r8, rcx
+mov     rcx, rax
+mov     rdx, r10
+mov     esi, 0x40190a    ; "%u %u %u %u %u"
+mov     eax, 0
+call    sscanf
+add     rsp, 10h
+cmp     eax, 5
+je      0x9
+\end{lstlisting}
+
+The binary then invokes the sscanf function again, this time with the format 
+string "\%u \%u \%u \%u \%u".  This means that we need 5 integers to pass the
+stage.  In fact, the binary checks if the function returns 5 and fails if 
+not.
+\begin{lstlisting}
+cmp     [rbp+counter], 4
+jbe     0x401023
+...
+mov     rax, [rbp+counter]
+mov     eax, [rbp+rax*4+input_numbers]
+cmp     eax, [rbp+first_letter_in_username]
+jbe     0x40103d
+...
+mov     rax, [rbp+counter]
+mov     eax, [rbp+rax*4+input_numbers]
+add     [rbp+first_letter_in_username], eax
+jmp     0x401044
+...
+add     [rbp+counter], 1  ; continue back at top
+\end{lstlisting}
+This code shows the path of successful execution of stage\_4.  This can be 
+thought of as a for loop that executes five times, over each number in our 
+input.  During each pass through the loop, the value is added to the ASCII
+value of the first character in the user name.  If the next value is smaller
+than the previous, the stage fails.
+
+\begin{lstlisting}
+mov     rdi, rax        ; username
+call    strlen
+mov     rcx, rax
+mov     rax, rbx
+mov     edx, 0
+div     rcx
+mov     rax, rdx
+test    rax, rax
+setz    al
+\end{lstlisting}
+\par
+After the loop, the stage calls strlen on the username and then divides the
+last sum by the length.  If the remainder (in rdx) is 0, the stage returns 
+non-zero.  The pseudocode below shows an approximation of what is happening 
+here:
+
+\begin{flushleft}
+\textbf{Pseudocode:}
+\vspace{.5pc}
+\end{flushleft}
+\begin{lstlisting}[language=Python]
+for number in input_numbers:
+	if number <= first_letter:
+		return False
+	else:
+		first_letter += number
+return first_letter % strlen(username) == 0
+\end{lstlisting}
+
+\begin{flushleft}
+\textbf{Solve Script:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+I wrote the following script to solve this challenge:
+\begin{lstlisting}[language=Python]
+from os import getenv
+# Get the length of the username
+username = getenv("USER")
+length = len(username)
+first_letter = ord(username[0])
+
+nums = [first_letter + 1]
+
+for i in range(4):
+    nums.append(nums[-1] + (nums[-1] ))
+
+# Add one if the last element is odd
+if (nums[-1] % 2 == 0):
+    nums[-1] += 1
+
+print(" ".join(str(x) for x in nums))
+\end{lstlisting}
+\par
+This script gives me the following output on the server: 107 214 428 856 1713
+
+\newpage
+\section{Stage 5 Analysis}
+\begin{flushleft}
+\vspace{.5pc}
+\end{flushleft}
+
+\begin{flushleft}
+\textbf{Analysis:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+Stage 5 initially uses calls used many times in earlier stages, so I will 
+skip over the minutiae.  It calls sscanf on the user input to retrieve three 
+values with the following format string: "\%c \%d \%c".  The stage expects
+a letter, followed by an integer, and another character.  There is a call to 
+strlen to get the length of the username.  
+
+\begin{lstlisting}
+mov     rax, [rbp+index]
+cmp     rax, [rbp+username_len]
+jb      0x40110a
+\end{lstlisting}
+\par
+This is the main loop of the stage and it terminates when the counter is 
+not smaller than the username length.
+\begin{lstlisting}
+mov    rax, QWORD PTR [rax*8+0x401928]
+jmp    rax
+\end{lstlisting}
+\par
+This took a bit of research but these sources put me in the right direction:
+\begin{itemize}
+	\item https://stackoverflow.com/questions/3012011/switch-case-assembly-level-code
+	\item https://stackoverflow.com/questions/9815448/jmp-instruction-hex-code
+\end{itemize}
+The rest of the code represents a jump table based on the letters in the 
+username.  I look through the binary to find the offsets, and it is in 
+.rodata.  You can use the objdump tool to examine sections, so I run the 
+following command: 
+\begin{lstlisting}[language=bash]
+objdump -s -j .rodata bomb.patched > objectdumps/.rodata
+\end{lstlisting}
+I write a python script where I annotate each jump for each value.  It is 
+called stage5.py.  Once the code gets to the offset, one of the input 
+characters is added to or subtracted from the input number.  The calculation
+depends on the ASCII value of each character in the username.  The actual 
+calculations are in the stage5.py file.  
+
+\begin{flushleft}
+\textbf{Solve Script:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+
+\begin{lstlisting}[language=Python]
+from os import getenv
+username = getenv("USER")   # Get username
+username_vals = [ord(character) for character in username]
+input_num = 1000            # Just pick a high number. We will adjust later
+master_input = 1000
+char1 = ord('~')            # Use tildes because it's the highest printable ascii val (126)
+char2 = ord('~')
+
+def math_one(val):
+    global input_num
+    input_num -= (char1 + val)
+
+def math_two(val):
+    global input_num
+    input_num -= (val * 2)
+
+def math_three(val):
+    global input_num
+    input_num -= (val)
+
+def math_four(val):
+    global input_num
+    input_num += char2 - val
+
+def math_five(val):
+    global input_num
+    input_num -= (val + char2)
+
+def math_six(val):
+    global input_num
+    input_num -= (char2)
+
+group_one = [97,101,105,111,117,121,math_one]
+group_two = [98,99,100,math_two]
+group_three = [102,103,104,math_three]
+group_four = [106,107,108,109,110,math_four]
+group_five = [112,113,114,115,116,math_five]
+group_six = [118,119,120,122,math_six]
+
+master_list = [group_one, group_two, group_three, group_four, group_five, group_six]
+
+for value in username_vals:
+    group = [x for x in master_list if value in x]      #find our list
+    group[0][-1](value)
+
+ans = master_input - input_num
+print("{} {} {}".format(chr(char1), ans, chr(char2)))
+\end{lstlisting}
+This script gives me "~ 1172 ~" on the server. 
+
+\newpage
+\section{Stage 6 Analysis}
+\begin{flushleft}
+\vspace{.5pc}
+\end{flushleft}
+
+\begin{flushleft}
+\textbf{Analysis:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+Stage 6
+\begin{flushleft}
+\textbf{Solve Script:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+
+\newpage
+\section{Stage 7 Analysis}
+\begin{flushleft}
+\vspace{.5pc}
+\end{flushleft}
+
+\begin{flushleft}
+\textbf{Analysis:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+
+\begin{flushleft}
+\textbf{Solve Script:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+
+\newpage
+\section{Stage 8 Analysis}
+\begin{flushleft}
+\vspace{.5pc}
+\end{flushleft}
+
+\begin{flushleft}
+\textbf{Analysis:}
+\vspace{.5pc}
+\end{flushleft}
+\par
+
+\begin{flushleft}
+\textbf{Solve Script:}
+\vspace{.5pc}
+\end{flushleft}
+\par
 
 \newpage
 \section{Works Cited}
