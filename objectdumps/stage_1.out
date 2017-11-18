@@ -1,0 +1,14 @@
+Dump of assembler code for function stage_1:
+   0x0000000000400e83 <+0>:	55	push   rbp
+   0x0000000000400e84 <+1>:	48 89 e5	mov    rbp,rsp
+   0x0000000000400e87 <+4>:	48 83 ec 10	sub    rsp,0x10
+   0x0000000000400e8b <+8>:	48 89 7d f8	mov    QWORD PTR [rbp-0x8],rdi
+   0x0000000000400e8f <+12>:	48 8b 45 f8	mov    rax,QWORD PTR [rbp-0x8]
+   0x0000000000400e93 <+16>:	be f8 18 40 00	mov    esi,0x4018f8
+   0x0000000000400e98 <+21>:	48 89 c7	mov    rdi,rax
+   0x0000000000400e9b <+24>:	e8 40 fa ff ff	call   0x4008e0 <strcmp@plt>
+   0x0000000000400ea0 <+29>:	85 c0	test   eax,eax
+   0x0000000000400ea2 <+31>:	0f 94 c0	sete   al
+   0x0000000000400ea5 <+34>:	c9	leave  
+   0x0000000000400ea6 <+35>:	c3	ret    
+End of assembler dump.

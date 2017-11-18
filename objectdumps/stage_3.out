@@ -1,0 +1,50 @@
+Dump of assembler code for function stage_3:
+   0x0000000000400ee1 <+0>:	55	push   rbp
+   0x0000000000400ee2 <+1>:	48 89 e5	mov    rbp,rsp
+   0x0000000000400ee5 <+4>:	48 83 ec 30	sub    rsp,0x30
+   0x0000000000400ee9 <+8>:	48 89 7d d8	mov    QWORD PTR [rbp-0x28],rdi
+   0x0000000000400eed <+12>:	64 48 8b 04 25 28 00 00 00	mov    rax,QWORD PTR fs:0x28
+   0x0000000000400ef6 <+21>:	48 89 45 f8	mov    QWORD PTR [rbp-0x8],rax
+   0x0000000000400efa <+25>:	31 c0	xor    eax,eax
+   0x0000000000400efc <+27>:	48 8b 0d 25 12 20 00	mov    rcx,QWORD PTR [rip+0x201225]        # 0x602128
+   0x0000000000400f03 <+34>:	48 8b 45 d8	mov    rax,QWORD PTR [rbp-0x28]
+   0x0000000000400f07 <+38>:	ba 80 00 00 00	mov    edx,0x80
+   0x0000000000400f0c <+43>:	48 89 ce	mov    rsi,rcx
+   0x0000000000400f0f <+46>:	48 89 c7	mov    rdi,rax
+   0x0000000000400f12 <+49>:	e8 a9 f9 ff ff	call   0x4008c0 <strncat@plt>
+   0x0000000000400f17 <+54>:	48 8b 45 d8	mov    rax,QWORD PTR [rbp-0x28]
+   0x0000000000400f1b <+58>:	48 89 c7	mov    rdi,rax
+   0x0000000000400f1e <+61>:	e8 5d f9 ff ff	call   0x400880 <strlen@plt>
+   0x0000000000400f23 <+66>:	48 89 45 f0	mov    QWORD PTR [rbp-0x10],rax
+   0x0000000000400f27 <+70>:	c7 45 ec 00 00 00 00	mov    DWORD PTR [rbp-0x14],0x0
+   0x0000000000400f2e <+77>:	48 8d 55 ec	lea    rdx,[rbp-0x14]
+   0x0000000000400f32 <+81>:	48 8b 45 d8	mov    rax,QWORD PTR [rbp-0x28]
+   0x0000000000400f36 <+85>:	be 07 19 40 00	mov    esi,0x401907
+   0x0000000000400f3b <+90>:	48 89 c7	mov    rdi,rax
+   0x0000000000400f3e <+93>:	b8 00 00 00 00	mov    eax,0x0
+   0x0000000000400f43 <+98>:	e8 f8 f9 ff ff	call   0x400940 <__isoc99_sscanf@plt>
+   0x0000000000400f48 <+103>:	8b 45 ec	mov    eax,DWORD PTR [rbp-0x14]
+   0x0000000000400f4b <+106>:	89 c0	mov    eax,eax
+   0x0000000000400f4d <+108>:	ba 00 00 00 00	mov    edx,0x0
+   0x0000000000400f52 <+113>:	48 f7 75 f0	div    QWORD PTR [rbp-0x10]
+   0x0000000000400f56 <+117>:	89 45 ec	mov    DWORD PTR [rbp-0x14],eax
+   0x0000000000400f59 <+120>:	8b 45 ec	mov    eax,DWORD PTR [rbp-0x14]
+   0x0000000000400f5c <+123>:	c1 e8 02	shr    eax,0x2
+   0x0000000000400f5f <+126>:	89 45 ec	mov    DWORD PTR [rbp-0x14],eax
+   0x0000000000400f62 <+129>:	8b 45 ec	mov    eax,DWORD PTR [rbp-0x14]
+   0x0000000000400f65 <+132>:	ba ab aa aa aa	mov    edx,0xaaaaaaab
+   0x0000000000400f6a <+137>:	f7 e2	mul    edx
+   0x0000000000400f6c <+139>:	89 d0	mov    eax,edx
+   0x0000000000400f6e <+141>:	d1 e8	shr    eax,1
+   0x0000000000400f70 <+143>:	89 45 ec	mov    DWORD PTR [rbp-0x14],eax
+   0x0000000000400f73 <+146>:	8b 45 ec	mov    eax,DWORD PTR [rbp-0x14]
+   0x0000000000400f76 <+149>:	89 c0	mov    eax,eax
+   0x0000000000400f78 <+151>:	48 3b 45 f0	cmp    rax,QWORD PTR [rbp-0x10]
+   0x0000000000400f7c <+155>:	0f 97 c0	seta   al
+   0x0000000000400f7f <+158>:	48 8b 4d f8	mov    rcx,QWORD PTR [rbp-0x8]
+   0x0000000000400f83 <+162>:	64 48 33 0c 25 28 00 00 00	xor    rcx,QWORD PTR fs:0x28
+   0x0000000000400f8c <+171>:	74 05	je     0x400f93 <stage_3+178>
+   0x0000000000400f8e <+173>:	e8 fd f8 ff ff	call   0x400890 <__stack_chk_fail@plt>
+   0x0000000000400f93 <+178>:	c9	leave  
+   0x0000000000400f94 <+179>:	c3	ret    
+End of assembler dump.

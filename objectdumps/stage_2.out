@@ -1,0 +1,18 @@
+Dump of assembler code for function stage_2:
+   0x0000000000400ea7 <+0>:	55	push   rbp
+   0x0000000000400ea8 <+1>:	48 89 e5	mov    rbp,rsp
+   0x0000000000400eab <+4>:	48 83 ec 10	sub    rsp,0x10
+   0x0000000000400eaf <+8>:	48 89 7d f8	mov    QWORD PTR [rbp-0x8],rdi
+   0x0000000000400eb3 <+12>:	bf 02 19 40 00	mov    edi,0x401902
+   0x0000000000400eb8 <+17>:	e8 83 f9 ff ff	call   0x400840 <getenv@plt>
+   0x0000000000400ebd <+22>:	48 89 05 64 12 20 00	mov    QWORD PTR [rip+0x201264],rax        # 0x602128
+   0x0000000000400ec4 <+29>:	48 8b 15 5d 12 20 00	mov    rdx,QWORD PTR [rip+0x20125d]        # 0x602128
+   0x0000000000400ecb <+36>:	48 8b 45 f8	mov    rax,QWORD PTR [rbp-0x8]
+   0x0000000000400ecf <+40>:	48 89 d6	mov    rsi,rdx
+   0x0000000000400ed2 <+43>:	48 89 c7	mov    rdi,rax
+   0x0000000000400ed5 <+46>:	e8 06 fa ff ff	call   0x4008e0 <strcmp@plt>
+   0x0000000000400eda <+51>:	85 c0	test   eax,eax
+   0x0000000000400edc <+53>:	0f 94 c0	sete   al
+   0x0000000000400edf <+56>:	c9	leave  
+   0x0000000000400ee0 <+57>:	c3	ret    
+End of assembler dump.
